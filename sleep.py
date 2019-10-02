@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 # import matplotlib.pyplot as plt
 
 import mne
@@ -33,9 +34,9 @@ sleep_stages = {
     'Sleep stage 1' : 1,
     'Sleep stage 2' : 2,
     'Sleep stage 3' : 3,
-    'Sleep stage 4' : 4,
-    'Sleep stage R' : 5,
-    'Sleep stage ?' : 6
+    'Sleep stage 4' : 3,
+    'Sleep stage R' : 4,
+    'Sleep stage ?' : 5
 }
 
 for no_subject in subjects:
@@ -47,12 +48,16 @@ for no_subject in subjects:
     raw_data.set_annotations(annot_data, emit_warning=False)
     raw_data.set_channel_types(mapping)
 
-    subject_data = np.array(raw_data._data).transpose()
+    df = pd.DataFrame(np.array(raw_data._data).transpose())
+
+    # # keep only the EEG signals data
+    subject_data = df.drop([2,3,4,5,6],axis=1)
 
     nb_entries = subject_data.shape[0]
 
     classifications = ['Sleep stage W']*nb_entries
     
+    # add the classification for every row
     for i, sleep_stage in enumerate(annot_data.description):
         onset_ms = int(annot_data.onset[i] / 0.01)
         duration_ms = int(annot_data.duration[i] / 0.01)
@@ -60,13 +65,14 @@ for no_subject in subjects:
             # print(sleep_stage, 'started at ', onset_ms, 'ms and lasted for ', duration_ms, 'ms')
             for j in range(onset_ms, onset_ms + duration_ms):
                 classifications[j] = sleep_stage
-    
-    classifications = np.array(classifications)
-    result = np.c_[subject_data, classifications]
-    
+
+    subject_data.insert(2, 'Class', classifications)
+
+    # Convert Sleep Stage X to corresponding integer
+    subject_data['Class'].replace(sleep_stages, inplace=True)
+
     file_name = 'subject' + str(no_subject) + '.csv'
-    np.savetxt(file_name,result, delimiter=',', header='string', comments='', fmt='%s')
-    x = 0
+    np.savetxt(file_name, subject_data, delimiter=',', header='EEG1,EEG2,Class', comments='', fmt='%s')
      
     # needs to get raw_data._data => (7,7 950 000) array each channel, each time instant
     # annot_data._description => (1,154) array with all sleep cycles in order
