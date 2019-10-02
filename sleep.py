@@ -13,6 +13,10 @@ from sklearn.metrics import classification_report
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import FunctionTransformer
 
+
+TIME_OF_W_TO_KEEP_SEC = 1800
+
+
 nb_subjects = 1 
 # CAN BE UP TO 20
 nights = [1] 
@@ -67,6 +71,20 @@ for no_subject in subjects:
                 classifications[j] = sleep_stage
 
     subject_data.insert(2, 'Class', classifications)
+
+    
+
+    # Get how long his first W stage is
+    awake_time = int(annot_data.duration[0])
+    nb_of_rows = awake_time * 100
+    # keep only one hour of wake stage
+    subject_data.drop(subject_data.index[:(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100)], inplace=True)
+
+    # Get how long last W stage is 
+    final_wake_time = int(annot_data.duration[len(annot_data.duration) - 2])
+    nb_of_rows = final_wake_time * 100
+    # Keep only one hour of wake time after 'waking up'
+    subject_data.drop(subject_data.tail(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100).index, inplace=True)
 
     # Convert Sleep Stage X to corresponding integer
     subject_data['Class'].replace(sleep_stages, inplace=True)
