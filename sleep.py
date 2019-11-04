@@ -18,7 +18,7 @@ from sklearn.preprocessing import FunctionTransformer
 TIME_OF_W_TO_KEEP_SEC = 1800
 
 
-nb_subjects = 2 
+nb_subjects =  16
 # CAN BE UP TO 20
 nights = [1] 
 # [1,2]
@@ -86,7 +86,7 @@ for no_subject in subjects:
 
     all_seq = pd.DataFrame()
 
-    file_name = 'subject' + str(no_subject) + '.csv'
+    file_name = 'subject' + str(no_subject) + str(nights) + '.csv'
 
     for i in range(0,32):
         start_i = random.randrange(i_start, i_end - 24000)
