@@ -81,6 +81,7 @@ for no_subject in subjects:
 
 
     all_seq = []
+    file_name = 'subject' + str(no_subject) + '.csv'
 
     for i in range(0,32):
         start_i = random.randrange(i_start, i_end - 24000)
