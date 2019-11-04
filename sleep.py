@@ -18,7 +18,7 @@ from sklearn.preprocessing import FunctionTransformer
 TIME_OF_W_TO_KEEP_SEC = 1800
 
 
-nb_subjects =  16
+nb_subjects =  20
 # CAN BE UP TO 20
 nights = [1] 
 # [1,2]
@@ -73,6 +73,8 @@ for no_subject in subjects:
 
     print('added classifications.')
     subject_data.insert(2, 'Class', classifications)
+    # # Convert Sleep Stage X to corresponding integer
+    subject_data['Class'].replace(sleep_stages, inplace=True)
 
     #30 MINS BEFORE SLEEP AND 30 MINS AFTER
 
