@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import random
 # import matplotlib.pyplot as plt
 
 import mne
@@ -70,29 +71,51 @@ for no_subject in subjects:
             for j in range(onset_ms, onset_ms + duration_ms):
                 classifications[j] = sleep_stage
 
+    print('added classifications.')
     subject_data.insert(2, 'Class', classifications)
+
+    #30 MINS BEFORE SLEEP AND 30 MINS AFTER
+    i_start = (int(annot_data.duration[0]) - TIME_OF_W_TO_KEEP_SEC) * 100
+
+    i_end = (int(annot_data.duration[len(annot_data.duration) - 2]) + TIME_OF_W_TO_KEEP_SEC) * 100
+
+
+    all_seq = []
+
+    for i in range(0,32):
+        start_i = random.randrange(i_start_sleep, i_end_sleep - 24000)
+
+        seq = subject_data[start_i:start_i + 24000, :]
+
+        all_seq.append(seq)
+
+    np.savetxt(file_name, all_seq, delimiter=',', header='EEG1,EEG2,Class', comments='', fmt='%s')
+
+
+
+
 
     
 
-    # Get how long his first W stage is
-    awake_time = int(annot_data.duration[0])
-    nb_of_rows = awake_time * 100
-    # keep only one hour of wake stage
-    subject_data.drop(subject_data.index[:(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100)], inplace=True)
+    # # Get how long his first W stage is
+    # awake_time = int(annot_data.duration[0])
+    # nb_of_rows = awake_time * 100
+    # # keep only one hour of wake stage
+    # subject_data.drop(subject_data.index[:(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100)], inplace=True)
 
-    # Get how long last W stage is 
-    final_wake_time = int(annot_data.duration[len(annot_data.duration) - 2])
-    nb_of_rows = final_wake_time * 100
-    # Keep only one hour of wake time after 'waking up'
-    subject_data.drop(subject_data.tail(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100).index, inplace=True)
+    # # Get how long last W stage is 
+    # final_wake_time = int(annot_data.duration[len(annot_data.duration) - 2])
+    # nb_of_rows = final_wake_time * 100
+    # # Keep only one hour of wake time after 'waking up'
+    # subject_data.drop(subject_data.tail(nb_of_rows - TIME_OF_W_TO_KEEP_SEC*100).index, inplace=True)
 
-    # Convert Sleep Stage X to corresponding integer
-    subject_data['Class'].replace(sleep_stages, inplace=True)
+    # # Convert Sleep Stage X to corresponding integer
+    # subject_data['Class'].replace(sleep_stages, inplace=True)
 
-    file_name = 'subject' + str(no_subject) + '.csv'
-    np.savetxt(file_name, subject_data, delimiter=',', header='EEG1,EEG2,Class', comments='', fmt='%s')
+    # file_name = 'subject' + str(no_subject) + '.csv'
+    # np.savetxt(file_name, subject_data, delimiter=',', header='EEG1,EEG2,Class', comments='', fmt='%s')
      
-    # needs to get raw_data._data => (7,7 950 000) array each channel, each time instant
-    # annot_data._description => (1,154) array with all sleep cycles in order
-    #           ._duration => time of each sleep cycle
-    #           ._onset => start time of sleep cycle
+    # # needs to get raw_data._data => (7,7 950 000) array each channel, each time instant
+    # # annot_data._description => (1,154) array with all sleep cycles in order
+    # #           ._duration => time of each sleep cycle
+    # #           ._onset => start time of sleep cycle
