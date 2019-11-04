@@ -83,7 +83,7 @@ for no_subject in subjects:
     all_seq = []
 
     for i in range(0,32):
-        start_i = random.randrange(i_start_sleep, i_end_sleep - 24000)
+        start_i = random.randrange(i_start, i_end - 24000)
 
         seq = subject_data[start_i:start_i + 24000, :]
 
