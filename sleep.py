@@ -18,7 +18,7 @@ from sklearn.preprocessing import FunctionTransformer
 TIME_OF_W_TO_KEEP_SEC = 1800
 
 
-nb_subjects = 1 
+nb_subjects = 2 
 # CAN BE UP TO 20
 nights = [1] 
 # [1,2]
@@ -75,20 +75,28 @@ for no_subject in subjects:
     subject_data.insert(2, 'Class', classifications)
 
     #30 MINS BEFORE SLEEP AND 30 MINS AFTER
-    i_start = (int(annot_data.duration[0]) - TIME_OF_W_TO_KEEP_SEC) * 100
 
-    i_end = (int(annot_data.duration[len(annot_data.duration) - 2]) + TIME_OF_W_TO_KEEP_SEC) * 100
+    awake_time = int(annot_data.duration[0])
 
+    i_start = (awake_time - TIME_OF_W_TO_KEEP_SEC) * 100
 
-    all_seq = []
+    length_last_two_stages = (int(annot_data.duration[len(annot_data.duration) - 2]) + int(annot_data.duration[len(annot_data.duration) - 1])) * 100
+
+    i_end = len(subject_data) - length_last_two_stages + (TIME_OF_W_TO_KEEP_SEC * 100)
+
+    all_seq = pd.DataFrame()
+
     file_name = 'subject' + str(no_subject) + '.csv'
 
     for i in range(0,32):
         start_i = random.randrange(i_start, i_end - 24000)
 
-        seq = subject_data[start_i:start_i + 24000, :]
+        seq = subject_data.loc[start_i:start_i + 24000 - 1, :]
+        all_seq = all_seq.append(seq)
 
-        all_seq.append(seq)
+
+    print('-asduais')
+    print(np.array(all_seq).shape)
 
     np.savetxt(file_name, all_seq, delimiter=',', header='EEG1,EEG2,Class', comments='', fmt='%s')
 
